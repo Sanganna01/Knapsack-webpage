@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About 0/1 Knapsack Problem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative; /* Add this to position the button relative to the body */
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 60px; /* Added padding-top to bring down the content */
+        }
+        h1, h2 {
+            color: #482d4cd5; /* Gold color for headings */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Adding glow effect */
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            background: linear-gradient(90deg, rgba(255,0,150,1) 0%, rgb(144, 82, 144) 100%); /* Gradient background */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 {
+            font-size: 2em;
+            background: linear-gradient(90deg, rgba(255,0,150,1) 0%, rgb(144, 82, 144) 100%); /* Gradient background */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section p {
+            line-height: 1.6;
+            font-size: 1.2em;
+        }
+        .collapsible {
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .collapsible:after {
+            content: '\002B'; /* Unicode character for "plus" sign */
+            font-size: 18px;
+            color: #472c4bd5;
+            float: right;
+        }
+        .active:after {
+            content: "\2212"; /* Unicode character for "minus" sign */
+        }
+        .content {
+            padding: 10px;
+            background-color: #222;
+            border-radius: 5px;
+            display: none;
+            font-size: 1.2em;
+        }
+        .example {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        code {
+            background-color: #444;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .home-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #482d4c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .home-button:hover {
+            background-color: #6e4b6d;
+        }
+    </style>
+</head>
+<body>
+    <button class="home-button" onclick="window.location.href='file:///C:/Users/91636/OneDrive/Desktop/knapsack/main.html';">Home</button>
+
+    <div class="container">
+        <h1>About The 0/1 Knapsack Problem</h1>
+        
+        <div class="section">
+            <h2>Introduction</h2>
+            <p>The 0/1 Knapsack Problem is a classic optimization problem in computer science and mathematics. It involves selecting a subset of items with given weights and values to maximize the total value while staying within a given weight capacity.</p>
+        </div>
+
+        <div class="section">
+            <h2>Problem Statement</h2>
+            <p>Given N items where each item has some weight and profit associated with it and also given a bag with capacity W, [i.e., the bag can hold at most W weight in it]. The task is to put the items into the bag such that the sum of profits associated with them is the maximum possible.</p>
+            <p>Note: The constraint here is we can either put an item completely into the bag or cannot put it at all [It is not possible to put a part of an item into the bag].</p>
+        </div>
+
+        <button class="collapsible">Examples</button>
+        <div class="content">
+            <p>Input: N = 3, W = 4, profit[] = {1, 2, 3}, weight[] = {4, 5, 1}</p>
+            <p>Output: 3</p>
+            <p>Explanation: There are two items which have weight less than or equal to 4. If we select the item with weight 4, the possible profit is 1. And if we select the item with weight 1, the possible profit is 3. So the maximum possible profit is 3. Note that we cannot put both the items with weight 4 and 1 together as the capacity of the bag is 4.</p>
+            <div class="example">
+                <p>Input: N = 3, W = 3, profit[] = {1, 2, 3}, weight[] = {4, 5, 6}</p>
+                <p>Output: 0</p>
+            </div>
+        </div>
+
+        <button class="collapsible">Recursion Approach</button>
+        <div class="content">
+            <p>A simple solution is to consider all subsets of items and calculate the total weight and profit of all subsets. Consider the only subsets whose total weight is smaller than W. From all such subsets, pick the subset with maximum profit.</p>
+            <p>Optimal Substructure: To consider all subsets of items, there can be two cases for every item.</p>
+            <p>Case 1: The item is included in the optimal subset.<br>
+               Case 2: The item is not included in the optimal set.</p>
+            <pre><code class="language-c">
+/* A Naive recursive implementation of 0-1 Knapsack problem */
+#include &lt;stdio.h&gt;
+
+// A utility function that returns maximum of two integers
+int max(int a, int b) { return (a > b) ? a : b; }
+
+// Returns the maximum value that can be put in a knapsack of capacity W
+int knapSack(int W, int wt[], int val[], int n)
+{
+    // Base Case
+    if (n == 0 || W == 0)
+        return 0;
+
+    // If weight of the nth item is more than Knapsack capacity W,
+    // then this item cannot be included in the optimal solution
+    if (wt[n - 1] > W)
+        return knapSack(W, wt, val, n - 1);
+
+    // Return the maximum of two cases: (1) nth item included (2) not included
+    else
+        return max(
+            val[n - 1] + knapSack(W - wt[n - 1], wt, val, n - 1),
+            knapSack(W, wt, val, n - 1));
+}
+
+// Driver code
+int main()
+{
+    int profit[] = { 60, 100, 120 };
+    int weight[] = { 10, 20, 30 };
+    int W = 50;
+    int n = sizeof(profit) / sizeof(profit[0]);
+    printf("%d", knapSack(W, weight, profit, n));
+    return 0;
+}
+            </code></pre>
+            <p>Output: 220</p>
+            <p>Time Complexity: O(2^N)<br>
+               Auxiliary Space: O(N), Stack space required for recursion</p>
+        </div>
+
+        <button class="collapsible">Dynamic Programming Approach</button>
+        <div class="content">
+            <p>Note: The above function using recursion computes the same subproblems again and again. As there are repetitions of the same subproblem, we can implement the following idea to solve the problem.</p>
+            <p>If we get a subproblem the first time, we can solve this problem by creating a 2-D array that can store a particular state (n, w). Now if we come across the same state (n, w) again instead of calculating it in exponential complexity we can directly return its result stored in the table in constant time.</p>
+            <pre><code class="language-cpp">
+// Memoization Approach
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+// Returns the value of maximum profit
+int knapSackRec(int W, int wt[], int val[], int index, int** dp)
+{
+    // base condition
+    if (index < 0)
+        return 0;
+    if (dp[index][W] != -1)
+        return dp[index][W];
+
+    if (wt[index] > W) {
+        // Store the value of function call stack in table before return
+        dp[index][W] = knapSackRec(W, wt, val, index - 1, dp);
+        return dp[index][W];
+    }
+    else {
+        // Store value in a table before return
+        dp[index][W] = max(val[index] + knapSackRec(W - wt[index], wt, val, index - 1, dp),
+                       knapSackRec(W, wt, val, index - 1, dp));
+        // Return value of table after storing
+        return dp[index][W];
+    }
+}
+
+int knapSack(int W, int wt[], int val[], int n)
+{
+    // double pointer to declare the table dynamically
+    int** dp;
+    dp = new int*[n];
+
+    // loop to create the table dynamically
+    for (int i = 0; i < n; i++)
+        dp[i] = new int[W + 1];
+
+    // loop to initially filled the table with -1
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < W + 1; j++)
+            dp[i][j] = -1;
+    return knapSackRec(W, wt, val, n - 1, dp);
+}
+
+// Driver code
+int main()
+{
+    int profit[] = { 60, 100, 120 };
+    int weight[] = { 10, 20, 30 };
+    int W = 50;
+    int n = sizeof(profit) / sizeof(profit[0]);
+    cout << knapSack(W, weight, profit, n);
+    return 0;
+}
+            </code></pre>
+            <p>Output: 220</p>
+            <p>Time Complexity: O(N*W)<br>
+               Auxiliary Space: O(N*W)</p>
+        </div>
+
+        <button class="collapsible">Space Optimized Approach</button>
+        <div class="content">
+            <p>In the previous approaches, we were using O(W) space for each item, and we have O(n) items, thus O(W*n) space. Instead of using a 2-D array, we can solve this problem using a 1-D array.</p>
+            <pre><code class="language-cpp">
+// C++ program to solve 0-1 Knapsack problem using 1-D array
+
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+// Function to return the maximum value that can be put in a knapsack of capacity W
+int knapSack(int W, int wt[], int val[], int n)
+{
+    // Making and initializing dp array
+    int dp[W + 1];
+    memset(dp, 0, sizeof(dp));
+
+    for (int i = 0; i < n; i++)
+        for (int w = W; w >= wt[i]; w--)
+            dp[w] = max(dp[w], dp[w - wt[i]] + val[i]);
+
+    return dp[W];
+}
+
+// Driver program
+int main()
+{
+    int profit[] = { 60, 100, 120 };
+    int weight[] = { 10, 20, 30 };
+    int W = 50;
+    int n = sizeof(profit) / sizeof(profit[0]);
+    cout << knapSack(W, weight, profit, n);
+    return 0;
+}
+            </code></pre>
+            <p>Output: 220</p>
+            <p>Time Complexity: O(N*W)<br>
+               Auxiliary Space: O(W)</p>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        for (var i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

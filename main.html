@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Programming</title>
+    <style>
+        @font-face {
+            font-family: 'DotGothic16';
+            src: url('fonts/DotGothic16.ttf') format('truetype');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'DotGothic16', sans-serif;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: black;
+            height: 400vh; /* Extend page height for scroll effect */
+        }
+
+        /* Navigation Links */
+        .nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .nav a:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: black;
+        }
+
+        /* Heading and Subheading Styling */
+        .heading {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 3em;
+            margin: 0;
+            color: white;
+            text-shadow:
+                0 0 3px rgba(255, 255, 255, 0.8),
+                0 0 6px rgba(255, 255, 255, 0.8),
+                0 0 9px rgba(255, 255, 255, 0.8),
+                0 0 12px rgba(255, 255, 255, 0.8),
+                0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        .subheading {
+            position: fixed;
+            top: 140px; /* Adjust as needed */
+            left: 20px;
+            font-size: 2em;
+            margin: 0;
+            color: white;
+            text-shadow:
+                0 0 3px rgba(255, 255, 255, 0.8),
+                0 0 6px rgba(255, 255, 255, 0.8),
+                0 0 9px rgba(255, 255, 255, 0.8),
+                0 0 12px rgba(255, 255, 255, 0.8),
+                0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Lavender Text Box with White 3D Effect */
+        .lavender-text-box {
+            position: absolute;
+            left: 50%;
+            top: 100vh; /* Start after animation section */
+            width: 1000px; /* Increased size */
+            height: 500px; /* Increased size */
+            background: rgba(215, 189, 226, 0.9); /* Lavender color with transparency */
+            color: white;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.6); /* White 3D effect */
+            border-radius: 20px;
+            transform: translateX(-50%);
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .lavender-text-box p {
+            margin: 0 0 15px; /* Increased spacing between paragraphs */
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        .lavender-text-box textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: rgba(215, 189, 226, 0.9); /* Lavender color with transparency */
+            color: white;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+            font-family: 'DotGothic16', sans-serif;
+            display: none; /* Hidden by default */
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .dropdown-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: rgba(215, 189, 226, 0.9); /* Match with text box */
+            border: 1px solid #444;
+            border-radius: 10px; /* Circular edges */
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+            z-index: 2;
+            width: 100%;
+            top: 100%;
+            left: 0;
+            max-height: 300px; /* Set max height for scroll */
+            overflow-y: auto;
+        }
+
+        .dropdown-content textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: rgba(215, 189, 226, 0.9); /* Lavender color with transparency */
+            color: white;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        .dropdown-button.active + .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-button:after {
+            content: "▼";
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        /* Black Text Box with White 3D Effect */
+        .black-text-box {
+            position: absolute;
+            left: 50%;
+            top: 250vh; /* Start after lavender text box with a gap */
+            width: 1000px; /* Increased size */
+            height: 500px; /* Increased size */
+            background: rgba(0, 0, 0, 0.9); /* Black background */
+            color: white;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.6); /* White 3D effect */
+            border-radius: 20px;
+            transform: translateX(-50%);
+            z-index: 3;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .black-text-box h2 {
+            margin: 0;
+            font-size: 2em;
+            color: #ffffff;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .black-text-box .team-members {
+            margin: 20px 0 0 0;
+            font-size: 1.2em;
+            color: #e8e8e8;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .black-text-box .team-members span {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1s forwards;
+        }
+
+        .black-text-box .team-members span:nth-child(1) {
+            animation-delay: 0.5s;
+        }
+
+        .black-text-box .team-members span:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .black-text-box .team-members span:nth-child(3) {
+            animation-delay: 1.5s;
+        }
+
+        .black-text-box .team-members span:nth-child(4) {
+            animation-delay: 2s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Chain of Circles */
+        .chain {
+            position: absolute;
+            left: 50%;
+            top: calc(192vh); /* Adjust based on height and gap */
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column; /* Stack circles vertically */
+            align-items: center;
+            gap: 40px; /* Increased gap between circles */
+        }
+
+        .chain .circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white; /* Outline only */
+            background: transparent; /* No fill color */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        .chain .circle:nth-child(2) {
+            background: white; /* Fill color for circle 2 */
+        }
+
+        .chain .circle:nth-child(4) {
+            background: white; /* Fill color for circle 4 */
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
+        }
+
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* TRY! Link */
+        .try-link {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .try-link:hover {
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Video Background -->
+    <div class="video-background">
+        <video autoplay muted loop>
+            <source src="https://www.planeterthos.com/videos/1715526460-cylinderresin-optimized.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="nav">
+        <a href="#home">Home</a>
+    <a href="file:///C:/Users/91636/OneDrive/Desktop/knapsack/about_section.html">About</a>
+    <a href="file:///C:/Users/91636/OneDrive/Desktop/knapsack/quizsand.html">Quiz</a>
+       
+    </div>
+
+    <!-- Heading Text -->
+    <div class="heading">Dynamic Programming</div>
+    <div class="subheading">0/1 Knapsack Problem</div>
+
+    <!-- Lavender Text Box with White 3D Effect -->
+    <div class="lavender-text-box">
+        <p><strong>What is 0/1 Knapsack?</strong></p>
+        <p>The 0/1 Knapsack Problem is a classic problem that involves finding the optimal way to pack a set of items of different weights and values into a knapsack of limited capacity. The goal is to maximize the total value without exceeding the knapsack capacity.</p>
+        <p>To solve this problem using dynamic programming, we create a 2D table <code>dp</code> where <code>dp[i][j]</code> represents the maximum value that can be obtained with <code>i</code> items and a knapsack capacity of <code>j</code>. We fill the table in a bottom-up manner, starting from the base case where there are no items or the knapsack capacity is 0.</p>
+        <p>For each cell <code>dp[i][j]</code>, we check if the current item's weight is less than or equal to the current knapsack capacity. If it is, we calculate the maximum value that can be obtained by either including the current item or excluding it. If the current item's weight exceeds the knapsack capacity, we simply copy the value from the previous row.</p>
+        <p>The time complexity of this solution is <code>O(nW)</code>, where <code>n</code> is the number of items and <code>W</code> is the knapsack capacity. The space complexity is <code>O(nW)</code> as well, since we need to store the 2D table <code>dp</code>.</p>
+        <div class="dropdown">
+            <button class="dropdown-button">Show Code</button>
+            <div class="dropdown-content">
+                <textarea readonly>
+def knapsack(weights, values, capacity):
+    n = len(values)
+    dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for j in range(1, capacity + 1):
+            if weights[i - 1] <= j:
+                dp[i][j] = max(values[i - 1] + dp[i - 1][j - weights[i - 1]], dp[i - 1][j])
+            else:
+                dp[i][j] = dp[i - 1][j]
+
+    return dp[n][capacity]
+                </textarea>
+            </div>
+        </div>
+        <div class="try-link" onclick="openLocalFile()">TRY!</div>
+    </div>
+
+    <!-- Chain of Circles -->
+    <div class="chain">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
+    <!-- Black Text Box with White 3D Effect -->
+    <div class="black-text-box">
+        <h2>About Us</h2>
+        <div class="team-members">
+            <span> Sandesh - 1RV22IS055</span>
+            <span> Sanganna - 1RV22IS056</span>
+            <span> Rohan - 1RV22IS051</span>
+            <span> Chinmay - 1RV22IS014</span>
+        </div>
+    </div>
+
+    <script>
+        function openLocalFile() {
+            // This will attempt to open the local file in a new window/tab
+            // Note: Modern browsers may block this due to security restrictions
+            window.open('file:///C:/Users/91636/OneDrive/Desktop/knapsack/visual.html', '_blank');
+        }
+
+        // Handle dropdown button toggle
+        document.querySelectorAll('.dropdown-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const dropdownContent = this.nextElementSibling;
+                dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                this.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+
+</html>
