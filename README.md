@@ -13,7 +13,7 @@ Follow these steps to download and run the project locally:
 ### 1. Download the Files
 - Clone or download the repository to your local machine. You can use the following command to clone the repository:
   ```bash
-  git clone https://github.com/your-username/your-repository.git
+  git clone https://github.com/Sanganna01/Knapsack-webpage
   ```
 
 ### 2. Open `main.html`
