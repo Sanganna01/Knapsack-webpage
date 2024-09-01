@@ -30,4 +30,4 @@ Enjoy exploring the 0/1 Knapsack Problem through this interactive tool!
 
 ---
 
-Feel free to adjust the links and descriptions to match your project specifics.
+
