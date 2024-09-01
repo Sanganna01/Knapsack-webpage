@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            color: #220f23;
+            background: url('https://e0.pxfuel.com/wallpapers/423/952/desktop-wallpaper-black-cool-background-awesome-dark.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 5rem;
+    color: #ff3700d5; /* Main color with red tint */
+    text-shadow: 1px 1px 0 #a03a23, /* Light shadow for 3D effect */
+                 2px 2px 0 #a03a23, /* Darker shadow for depth */
+                 3px 3px 0 #a03a23; /* More shadow for stronger 3D effect */
+    margin: 40px 0;
+}
+
+
+        .text-box {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.7); /* Transparent black */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            text-align: left;
+            color: #fff;
+        }
+
+        .question {
+            margin-bottom: 40px; /* Increased space between questions */
+        }
+
+        .question-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            color: #ff0080; /* Stylish color for question number */
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 20px; /* Space before options */
+        }
+
+        .option {
+            display: block;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.3); /* Transparent white */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+        }
+
+        .option.correct {
+            background: rgba(76, 175, 80, 0.7); /* Green */
+        }
+
+        .option.incorrect {
+            background: rgba(244, 67, 54, 0.7); /* Red */
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.5); /* Slightly more opaque on hover */
+        }
+
+        .nav-btn, .new-test-btn {
+            background-color: #ff3700d5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .new-test-btn {
+            margin-left: 10px;
+        }
+
+        .feedback {
+            display: none; /* Initially hidden */
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #777;
+            border-radius: 8px;
+            background: #333;
+            text-align: left; /* Align feedback to the left */
+        }
+
+        /* Add space between feedback and buttons */
+        .feedback + .nav-btn {
+            margin-top: 30px;
+        }
+
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #ff3700d5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-btn:hover {
+            background-color: #ff5e57;
+        }
+    </style>
+</head>
+<body>
+    <a href="file:///C:/Users/91636/OneDrive/Desktop/knapsack/main.html" class="home-btn">Home</a>
+    <h1>Quiz</h1>
+    <div class="text-box">
+        <div id="quiz-content">
+            <!-- Questions will be dynamically added here -->
+        </div>
+        <div id="feedback" class="feedback"></div> <!-- Feedback box -->
+        <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">Previous</button>
+        <button class="nav-btn" id="next-btn" onclick="nextQuestion()">Next</button>
+        <button class="new-test-btn" onclick="startNewTest()">New Test</button>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="correct-sound" src="correct.mp3"></audio>
+    <audio id="wrong-sound" src="wrong.mp3"></audio>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the primary goal of the 0/1 knapsack problem?",
+                options: [
+                    "Minimize the weight of the knapsack",
+                    "Maximize the number of items in the knapsack",
+                    "Maximize the total value of items in the knapsack",
+                    "Minimize the total value of items in the knapsack"
+                ],
+                answer: 2,
+                explanation: "The 0/1 Knapsack problem aims to maximize the total value of items placed in the knapsack while keeping the total weight within the weight constraint."
+            },
+            {
+                question: "In the context of the knapsack problem, what does the '0/1' signify?",
+                options: [
+                    "Each item can be divided into smaller pieces",
+                    "Each item can either be included (1) or excluded (0) from the knapsack",
+                    "Each item must be included exactly once",
+                    "The problem can be solved in constant time"
+                ],
+                answer: 1,
+                explanation: "In the 0/1 Knapsack problem, '0/1' signifies that each item can either be included (1) or excluded (0)."
+            },
+            {
+                question: "Which of the following algorithms is commonly used to solve the 0/1 knapsack problem?",
+                options: [
+                    "Dijkstra's algorithm",
+                    "Quick sort",
+                    "Dynamic programming",
+                    "Breadth-first search"
+                ],
+                answer: 2,
+                explanation: "Dynamic programming is commonly used to solve the 0/1 Knapsack problem."
+            },
+            {
+                question: "What is the time complexity of the dynamic programming solution for the 0/1 knapsack problem with n items and a capacity W?",
+                options: [
+                    "O(n + W)",
+                    "O(n / W)",
+                    "O(n^2)",
+                    "O(n log n)"
+                ],
+                answer: 0,
+                explanation: "The time complexity of the dynamic programming solution is O(n * W)."
+            },
+            {
+                question: "In a fractional knapsack problem, how can items be added to the knapsack?",
+                options: [
+                    "Items must be taken whole, without division",
+                    "Items can be divided and fractional parts can be taken",
+                    "Only half of the items can be taken",
+                    "Items must be taken in pairs"
+                ],
+                answer: 1,
+                explanation: "In a fractional knapsack problem, items can be divided and fractional parts can be taken."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answeredQuestions = new Set();
+        let correctSound = document.getElementById('correct-sound');
+        let wrongSound = document.getElementById('wrong-sound');
+
+        function displayQuiz() {
+            const quizContent = document.getElementById('quiz-content');
+            quizContent.innerHTML = '';
+            questions.forEach((q, index) => {
+                const questionBox = document.createElement('div');
+                questionBox.classList.add('question');
+                questionBox.setAttribute('data-index', index);
+
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question-number');
+                questionDiv.innerHTML = `${index + 1}.`;
+                questionBox.appendChild(questionDiv);
+
+                const questionTextDiv = document.createElement('div');
+                questionTextDiv.classList.add('question-text');
+                questionTextDiv.innerHTML = q.question;
+                questionBox.appendChild(questionTextDiv);
+
+                q.options.forEach((option, i) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.classList.add('option');
+                    optionDiv.setAttribute('data-answer', String.fromCharCode(65 + i));
+                    optionDiv.innerHTML = `${String.fromCharCode(65 + i)}) ${option}`;
+                    optionDiv.addEventListener('click', () => checkAnswer(index, i));
+                    questionBox.appendChild(optionDiv);
+                });
+
+                quizContent.appendChild(questionBox);
+            });
+
+            showQuestion(currentQuestion);
+        }
+
+        function showQuestion(index) {
+            const questions = document.querySelectorAll('.question');
+            questions.forEach((question, i) => {
+                question.style.display = i === index ? 'block' : 'none';
+            });
+            document.getElementById('prev-btn').style.display = index === 0 ? 'none' : 'inline-block';
+            document.getElementById('next-btn').style.display = index === questions.length - 1 ? 'none' : 'inline-block';
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                clearFeedback(); // Clear feedback on next question
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+                clearFeedback(); // Clear feedback on previous question
+            }
+        }
+
+        function startNewTest() {
+            currentQuestion = 0;
+            answeredQuestions.clear();
+            displayQuiz();
+            clearFeedback(); // Clear feedback on new test
+        }
+
+        function checkAnswer(questionIndex, optionIndex) {
+            if (answeredQuestions.has(questionIndex)) return; // Prevent re-selection
+
+            answeredQuestions.add(questionIndex);
+
+            const selectedQuestion = questions[questionIndex];
+            const optionDivs = document.querySelectorAll(`.question[data-index="${questionIndex}"] .option`);
+            const explanation = selectedQuestion.explanation;
+            let feedbackMessage = '';
+
+            // Pause and reset audio if playing
+            if (!correctSound.paused) correctSound.pause();
+            if (!wrongSound.paused) wrongSound.pause();
+
+            optionDivs.forEach((optionDiv, i) => {
+                if (i === selectedQuestion.answer) {
+                    optionDiv.classList.add('correct');
+                    if (i === optionIndex) {
+                        feedbackMessage = 'Correct!<br>' + explanation;
+                        correctSound.play(); // Play correct sound
+                    }
+                } else if (i === optionIndex) {
+                    optionDiv.classList.add('incorrect');
+                    feedbackMessage = 'Wrong!<br>' + explanation;
+                    wrongSound.play(); // Play wrong sound
+                }
+                optionDiv.classList.add('disabled');
+            });
+
+            const feedbackBox = document.getElementById('feedback');
+            feedbackBox.innerHTML = feedbackMessage;
+            feedbackBox.style.display = 'block'; // Show feedback
+        }
+
+        function clearFeedback() {
+            const feedbackBox = document.getElementById('feedback');
+            feedbackBox.innerHTML = '';
+            feedbackBox.style.display = 'none'; // Hide feedback
+        }
+
+        document.addEventListener('DOMContentLoaded', displayQuiz);
+    </script>
+</body>
+</html>
